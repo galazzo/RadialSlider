@@ -1,0 +1,6 @@
+git init
+git add .
+git commit -m "first commit"
+git remote add origin https://github.com/galazzo/RadialSlider.git
+git pull https://github.com/galazzo/RadialSlider.git
+git push -u origin master

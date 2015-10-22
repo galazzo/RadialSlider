@@ -1,21 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
- 
-using System.Windows.Input;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Core;
 
@@ -73,9 +64,10 @@ namespace Galazzo
         public event EventHandler<RoutedEventArgs> ChangeCompleted;                
         private RadialSliderEventArgs eventArgs = new RadialSliderEventArgs();
         #endregion
-        
+
 
         #region private variables
+       
         private double _value = 0;
         // private Thickness originalPosition;
         //  private double IndicatorWidth = 40;
@@ -154,6 +146,7 @@ namespace Galazzo
                 RenderArc();
             }
         }
+        public double IndicatorOffset { get; set; }
         public IndicatorDirectionModeTypes IndicatorDirectionMode { get; set; }
         public ValuesDirectionModeTypes ValuesDirectionMode { get; set; }
         public double InnerBorderMargin
@@ -185,8 +178,8 @@ namespace Galazzo
         {
             get; set;
         }
+        public double RangeItemOffset { get; set; }
         #endregion
-
 
         public RadialSlider()
         {
@@ -210,13 +203,13 @@ namespace Galazzo
             ValuesDirectionMode = ValuesDirectionModeTypes.Counterclockwise;
 
             InnerBorderMargin = 0;
-
+            RangeItemOffset = 0;
+            IndicatorOffset = 10;
             IsValueShowed = true;
             DisplayValueMode = DisplayValueModeTypes.Raw;
 
             RangeValuesRotation = RangeValuesRotationModeTypes.Perpendicular;
         }
-                
         
         private void RenderArc()
         {
@@ -229,13 +222,10 @@ namespace Galazzo
             double radius = (FirstRadius - (InnerRadius / 4));
 
             if (radius <= 0) return;
-
-            
-            //double startX = (LayoutRoot.ActualWidth - ScreenWidth) + (ScreenWidth /2) + (radius * Math.Cos(begin));
+                                    
             double startX = (ScreenWidth / 2) + (radius * Math.Cos(begin));
             double startY = (ScreenHeight / 2) - (radius * Math.Sin(begin));
-
-            //double endX = (LayoutRoot.ActualWidth - ScreenWidth) + (ScreenWidth /2) + (radius * Math.Cos(end));
+                        
             double endX = (ScreenWidth / 2) + (radius * Math.Cos(end));
             double endY = (ScreenHeight / 2) - (radius * Math.Sin(end));
 
@@ -305,88 +295,6 @@ namespace Galazzo
             ThicknessArc.Data = outerGeometry;
             InnerBorder.Data = innerBorderGeometry;
             OuterBorder.Data = outerBorderGeometry;
-        }
-
-        private void RenderRanges()
-        {
-            if(_ranges!= null)
-            {
-                double _ScreenWidth = ScreenWidth;// Window.Current.Bounds.Width / 2; // Application.Current.Host.Content.ActualWidth / 2;
-                double _ScreenHeight = ScreenHeight; // Width;
-
-                double X = 0.0;
-                double Y = 0.0;
-
-                double angle = 0.0;
-                double radians = 0.0;
-
-                double AngleWideRanges = ((_end_angle - _start_angle) == 360) ? 360 : (_end_angle - _start_angle) % 360;
-
-               // LayoutRoot.Children.Clear(); RenderArc();
-
-                for (int i = 0; i < _ranges.Count; i++)
-                {
-                    if (_ranges[i].Icon == null)
-                    {
-                        Windows.UI.Xaml.Shapes.Line line = new Windows.UI.Xaml.Shapes.Line();
-
-                        TextBlock element = new TextBlock();
-                        element.FontSize = 16;
-                        element.Text = _ranges[i].Value;
-                        element.HorizontalAlignment = HorizontalAlignment.Center; element.VerticalAlignment = VerticalAlignment.Center;
-
-                        element.RenderTransformOrigin = new Point(0.5, 0.5);
-
-                        angle = _start_angle + ((_ranges.Count == 1) ? 0 : ((i * (AngleWideRanges / (_ranges.Count - 1)))));
-                        radians = angle * (Math.PI / 180);
-
-                        X = +(((ScreenWidth - InnerRadius - 20) / 2) * Math.Cos(radians)) - ((element.ActualWidth) / 2);
-                        Y = -(((ScreenWidth - InnerRadius - 20) / 2) * Math.Sin(radians)) - ((element.ActualHeight) / 2);
-
-                        line.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 0, 0));
-
-                        line.X1 = (ScreenWidth / 2) + (((FirstRadius + 0) / 2) * Math.Cos(radians));
-                        line.Y1 = (ScreenHeight / 2) - (((FirstRadius + 0) / 2) * Math.Sin(radians));
-                        line.X2 = (ScreenWidth / 2) + (((FirstRadius + InnerRadius) / 2) * Math.Cos(radians));
-                        line.Y2 = (ScreenHeight / 2) - (((FirstRadius + InnerRadius) / 2) * Math.Sin(radians));
-                        LayoutRoot.Children.Add(line);
-
-                        double angle_compensation = 0;
-                        switch (RangeValuesRotation)
-                        {
-                            case RangeValuesRotationModeTypes.Perpendicular: angle_compensation = (((angle % 360) > 180) && ((angle % 360) < 360)) ? 270 : 90; break;
-                            case RangeValuesRotationModeTypes.Linear: angle_compensation = (((angle % 360) > 270) || ((angle % 350) < 90)) ? 0 : 180; break;
-                            default: break;
-                        }
-                        element.RenderTransform = new CompositeTransform() { Rotation = angle_compensation - angle, TranslateX = X, TranslateY = Y };
-                        LayoutRoot.Children.Add(element);
-                    }
-                    else
-                    {
-                        Image element = new Image();
-                        element.Source = _ranges[i].Icon;
-                        element.Width = 20;
-                        element.Height = 20;
-                        element.HorizontalAlignment = HorizontalAlignment.Left;
-                        element.VerticalAlignment = VerticalAlignment.Top;
-
-                        element.Margin = new Thickness(-(element.Width / 2), -(element.Height / 2), 0, 0);
-
-                        // LayoutRoot.Children.Add(element);
-
-                        element.RenderTransformOrigin = new Point(0.5, 0.5);
-
-                        angle = (_ranges.Count == 1) ? 0 : (-(AngleWideRanges / 2) + (i * (AngleWideRanges / (_ranges.Count - 1))));
-                        radians = angle * (Math.PI / 180);
-                        X = (ScreenWidth - element.ActualWidth / 2) - ((FirstRadius + 10 + element.ActualHeight / 2) * Math.Cos(radians));
-                        Y = ((ScreenHeight / 2) - element.ActualHeight / 2) - ((FirstRadius + 10 + element.ActualHeight / 2) * Math.Sin(radians));
-
-                        element.RenderTransform = new CompositeTransform() { Rotation = 270 + angle, TranslateX = X, TranslateY = Y };
-                    }
-
-                }
-                Focus(FocusState.Pointer);
-            }
         }
 
         public int LayoutPosition
@@ -488,7 +396,77 @@ namespace Galazzo
                 _ranges = null; GC.Collect();
                 _ranges = value.ToList();
 
-                RenderRanges();
+                double _ScreenWidth = ScreenWidth;// Window.Current.Bounds.Width / 2; // Application.Current.Host.Content.ActualWidth / 2;
+                double _ScreenHeight = ScreenHeight; // Width;
+
+                double X = 0.0;
+                double Y = 0.0;
+
+                double angle = 0.0;
+                double radians = 0.0;
+
+                double AngleWideRanges = ((_end_angle - _start_angle) == 360) ? 360 : (_end_angle - _start_angle) % 360;
+
+                #region Redraw range item and line elements
+                for (int i = 0; i < _ranges.Count; i++)
+                {
+                    if (_ranges[i].Icon == null)
+                    {
+                        TextBlock element = new TextBlock();
+                        element.Name = "RangeItem" + i;
+                        element.FontSize = 16;
+                        element.Text = _ranges[i].Value;
+                        element.HorizontalAlignment = HorizontalAlignment.Center; element.VerticalAlignment = VerticalAlignment.Center;
+
+                        element.RenderTransformOrigin = new Point(0.5, 0.5);
+
+                        angle = _start_angle + ((_ranges.Count == 1) ? 0 : ((i * (AngleWideRanges / (_ranges.Count - 1)))));
+                        radians = angle * (Math.PI / 180);
+
+                        X = +(((ScreenWidth - InnerRadius - 20) / 2) * Math.Cos(radians)) - ((element.ActualWidth) / 2);
+                        Y = -(((ScreenWidth - InnerRadius - 20) / 2) * Math.Sin(radians)) - ((element.ActualHeight) / 2);
+
+                        Windows.UI.Xaml.Shapes.Line line = new Windows.UI.Xaml.Shapes.Line();
+                        line.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 0, 0));                        
+                        LayoutRoot.Children.Add(line);
+
+                        double angle_compensation = 0;
+                        switch (RangeValuesRotation)
+                        {
+                            case RangeValuesRotationModeTypes.Perpendicular: angle_compensation = (((angle % 360) > 180) && ((angle % 360) < 360)) ? 270 : 90; break;
+                            case RangeValuesRotationModeTypes.Linear: angle_compensation = (((angle % 360) > 270) || ((angle % 350) < 90)) ? 0 : 180; break;
+                            default: break;
+                        }
+                        element.RenderTransform = new CompositeTransform() { Rotation = angle_compensation - angle, TranslateX = X, TranslateY = Y };
+                        LayoutRoot.Children.Add(element);
+                    }
+                    else
+                    {
+                        Image element = new Image();
+                        element.Source = _ranges[i].Icon;
+                        element.Width = 20;
+                        element.Height = 20;
+                        element.HorizontalAlignment = HorizontalAlignment.Left;
+                        element.VerticalAlignment = VerticalAlignment.Top;
+
+                        element.Margin = new Thickness(-(element.Width / 2), -(element.Height / 2), 0, 0);
+
+                        // LayoutRoot.Children.Add(element);
+
+                        element.RenderTransformOrigin = new Point(0.5, 0.5);
+
+                        angle = (_ranges.Count == 1) ? 0 : (-(AngleWideRanges / 2) + (i * (AngleWideRanges / (_ranges.Count - 1))));
+                        radians = angle * (Math.PI / 180);
+                        X = (ScreenWidth - element.ActualWidth / 2) - ((FirstRadius + 10 + element.ActualHeight / 2) * Math.Cos(radians));
+                        Y = ((ScreenHeight / 2) - element.ActualHeight / 2) - ((FirstRadius + 10 + element.ActualHeight / 2) * Math.Sin(radians));
+
+                        element.RenderTransform = new CompositeTransform() { Rotation = 270 + angle, TranslateX = X, TranslateY = Y };
+                    }
+
+                }
+                #endregion
+
+                Focus(FocusState.Pointer);
             }
 
         }
@@ -548,8 +526,8 @@ namespace Galazzo
             
             if (value <= Max && value >= Min)
             {
-                double X = (ScreenWidth / 2) + (FirstRadius * Math.Cos(radians));
-                double Y = (ScreenWidth / 2) - (FirstRadius * Math.Sin(radians));
+                double X = (ScreenWidth / 2) + ((FirstRadius - IndicatorOffset) * Math.Cos(radians));
+                double Y = (ScreenWidth / 2) - ((FirstRadius - IndicatorOffset) * Math.Sin(radians));
 
                 /*System.Diagnostics.Debug.WriteLine("\n");
                 System.Diagnostics.Debug.WriteLine("X:" + (FirstRadius * Math.Cos(radians)));
@@ -623,43 +601,13 @@ namespace Galazzo
                 Visibility = Visibility.Collapsed;
             });
         }
-
-        public void Rotate(double? from, double? to)
-        {
-            Duration Time_duration = new Duration(TimeSpan.FromSeconds(1));
-            Storyboard storyboard = new Storyboard();
-            storyboard.Duration = Time_duration;
-            DoubleAnimation doubleAnimation = new DoubleAnimation();
-            doubleAnimation.Duration = Time_duration;
-            storyboard.Children.Add(doubleAnimation);
-            RotateTransform rotateTransform = new RotateTransform();
-            Storyboard.SetTarget(doubleAnimation, rotateTransform);
-            //Storyboard.SetTargetProperty(doubleAnimation, new PropertyPath("Angle"));
-            Storyboard.SetTargetProperty(doubleAnimation, "Angle");
-            doubleAnimation.From = from;
-            doubleAnimation.To = to;
-
-            //LayoutRoot.RenderTransform = rotateTransform;
-            ValueText.RenderTransform = rotateTransform;
-            Indicator.RenderTransform = rotateTransform;
-            //ValueImage.RenderTransform = rotateTransform;
-
-            storyboard.Begin();
-        }
-
-        /*public void RotateLaytout(double angle)
-        {
-            RotateTransform rotateTransform = new RotateTransform();
-            rotateTransform.Angle = angle;
-            LayoutRoot.RenderTransform = rotateTransform;
-        }*/
-
+        
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //System.Diagnostics.Debug.WriteLine(e.NewSize.Width+";"+e.NewSize.Height);
-            
+
             double side = Math.Min(e.NewSize.Width, e.NewSize.Height);
-            double thickness = (side - InnerRadius) ;
+            double thickness = (side - InnerRadius);
 
             LayoutRoot.Width = side;
             LayoutRoot.Height = side;
@@ -667,14 +615,53 @@ namespace Galazzo
             ScreenHeight = side;
             FirstRadius = (int)(side / 2);
 
-           // ThicknessArc.Width = side; ThicknessArc.Height = side; ThicknessArc.StrokeThickness = InnerRadius/2;            
-          //  InnerBorder.Width = thickness; InnerBorder.Height = thickness;
+//          System.Diagnostics.Debug.WriteLine("side:" + side);
 
-            ValueText.Margin = new Thickness( (side/2) - (ValueText.ActualWidth/2), (side/2) - (ValueText.ActualHeight/2), 0,0 );
+            ValueText.Margin = new Thickness((side / 2) - (ValueText.ActualWidth / 2), (side / 2) - (ValueText.ActualHeight / 2), 0, 0);
 
             MoveIndicatorTo(_value);
             RenderArc();
-           // RenderRanges();
+
+            #region Draw again range items and lines
+            var childLines = LayoutRoot.Children; 
+            var indexLine = 0; var indexRangeItem = 0;
+            double AngleWideRanges = ((_end_angle - _start_angle) == 360) ? 360 : (_end_angle - _start_angle) % 360;
+            for (int i = 0; i < childLines.Count(); i++)
+            {
+                //System.Diagnostics.Debug.WriteLine("element " + childLines[i].GetType().Name + " on " + typeof(Windows.UI.Xaml.Shapes.Line).Name);
+                if (childLines[i].GetType() == typeof(Windows.UI.Xaml.Shapes.Line))
+                {
+                    var angle = _start_angle + ((_ranges.Count == 1) ? 0 : ((indexLine * (AngleWideRanges / (_ranges.Count - 1)))));
+                    var radians = angle * (Math.PI / 180);
+
+                    (childLines[i] as Windows.UI.Xaml.Shapes.Line).X1 = (ScreenWidth / 2) + (((double)FirstRadius - (InnerRadius / 2)) * Math.Cos(radians));
+                    (childLines[i] as Windows.UI.Xaml.Shapes.Line).Y1 = (ScreenHeight / 2) - (((double)FirstRadius - (InnerRadius / 2)) * Math.Sin(radians));
+                    (childLines[i] as Windows.UI.Xaml.Shapes.Line).X2 = (ScreenWidth / 2) + (((double)FirstRadius) * Math.Cos(radians));
+                    (childLines[i] as Windows.UI.Xaml.Shapes.Line).Y2 = (ScreenWidth / 2) - (((double)FirstRadius) * Math.Sin(radians));
+                    ++indexLine;
+                }
+
+                if ((childLines[i].GetType() == typeof(TextBlock)) && ((childLines[i] as TextBlock).Name.Contains("RangeItem")))
+                {
+                    var element = (childLines[i] as TextBlock);
+
+                    var angle = _start_angle + ((_ranges.Count == 1) ? 0 : ((indexRangeItem * (AngleWideRanges / (_ranges.Count - 1)))));
+                    var radians = angle * (Math.PI / 180);
+                    var X = +(((ScreenWidth - InnerRadius - RangeItemOffset) / 2) * Math.Cos(radians));// - ((element.ActualWidth) / 2);
+                    var Y = -(((ScreenHeight - InnerRadius - RangeItemOffset) / 2) * Math.Sin(radians));// - ((element.ActualHeight) / 2);
+
+                    double angle_compensation = 0;
+                    switch (RangeValuesRotation)
+                    {
+                        case RangeValuesRotationModeTypes.Perpendicular: angle_compensation = (((angle % 360) > 180) && ((angle % 360) < 360)) ? 270 : 90; break;
+                        case RangeValuesRotationModeTypes.Linear: angle_compensation = (((angle % 360) > 270) || ((angle % 350) < 90)) ? 0 : 180; break;
+                        default: break;
+                    }
+                    element.RenderTransform = new CompositeTransform() { Rotation = angle_compensation - angle, TranslateX = X, TranslateY = Y };
+                    ++indexRangeItem;
+                }
+            }
+            #endregion
         }
     }
 }

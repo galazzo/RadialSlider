@@ -75,7 +75,7 @@
                 Canvas.ZIndex="100000"
                 RenderTransformOrigin="0.5,0.5" 
                 PointerMoved="Indicator_PointerMoved"
-                Source="Assets/StoreLogo.png" 
+                Source="Assets/Indicator.png" 
                 />
 
         </Canvas>
