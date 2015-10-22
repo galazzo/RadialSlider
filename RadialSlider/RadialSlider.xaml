@@ -1,0 +1,83 @@
+﻿<UserControl
+    x:Class="Galazzo.RadialSlider"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Galazzo"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    SizeChanged="UserControl_SizeChanged">
+
+    <Grid x:Name="LayoutRoot"
+          Background="Transparent"         
+          MinHeight="100" MinWidth="100">        
+        <Canvas x:Name="ContentPanelCanvas" Background="Transparent" Margin="0" 
+                PointerMoved="Indicator_PointerMoved"
+                PointerPressed="Indicator_PointerPressed"
+                ManipulationCompleted="Indicator_ManipulationCompleted"
+                ManipulationStarted="Indicator_ManipulationStarted"
+                RenderTransformOrigin="0.5,0.5"
+                >
+            
+            <!-- <Ellipse Name="OuterCircle" Height="{Binding Height, ElementName=LayoutRoot}" Width="{Binding Width, ElementName=LayoutRoot}"  Stroke="Black" StrokeThickness="50" Fill="Transparent" Opacity="0.5"  RenderTransformOrigin="0.5,0.5" />            
+            <Ellipse Name="InnerCircle" Height="{Binding Height, ElementName=LayoutRoot, Converter={StaticResource MathConverter}, ConverterParameter=Int32.Parse(values[0])-100}" Width="{Binding Width, ElementName=LayoutRoot, Converter={StaticResource MathConverter}, ConverterParameter=Int32.Parse(values[0])-100}" Stroke="White" StrokeThickness="1" Fill="Transparent" Margin="50,50,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/> -->
+            <!-- <Ellipse Name="OuterCircle" Height="400" Width="400"  Stroke="Black" StrokeThickness="50" Fill="Transparent" Opacity="0.5"  RenderTransformOrigin="0.5,0.5" Canvas.Left="0" /> -->
+            <!-- <Ellipse Name="InnerCircle" Height="300" Width="300" Stroke="White" StrokeThickness="1" Fill="Transparent" Margin="50,50,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/> -->
+            
+            <TextBlock Name="ValueText"  Text="0.0"  HorizontalAlignment="Left"  VerticalAlignment="Top"  TextAlignment="Center" FontSize="72" FontWeight="Bold" RenderTransformOrigin="0.5,0.5" >
+                <TextBlock.RenderTransform>
+                    <CompositeTransform Rotation="0"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            
+            <Path Name="ThicknessArc" Stroke="Black" Fill="Transparent"
+                  Opacity="0.5" 
+                  StrokeThickness="50"
+                  Data="M 0,0 A 200,200 0 1 0 0.01,0.01"
+                  RenderTransformOrigin="0.5,0.5"
+                  Width="{Binding ActualWidth, ElementName=LayoutRoot}"
+                  Height="{Binding ActualHeight, ElementName=LayoutRoot}">
+                <Path.RenderTransform>
+                    <CompositeTransform Rotation="0"/>
+                </Path.RenderTransform>
+            </Path>
+            <Path Name="InnerBorder" Stroke="White" Fill="Transparent" 
+                  Opacity="0.5"
+                  StrokeThickness="1"
+                  Data="M 50,200 A 150,150 0 0 0 150,340"
+                  RenderTransformOrigin="0.5,0.5"
+                  Width="{Binding ActualWidth, ElementName=LayoutRoot}"
+                  Height="{Binding ActualHeight, ElementName=LayoutRoot}">
+                <Path.RenderTransform>
+                    <CompositeTransform Rotation="0"/>
+                </Path.RenderTransform>
+            </Path>
+            <Path Name="OuterBorder" Stroke="White" Fill="Transparent"
+                  Opacity="0.5"
+                  StrokeThickness="1" 
+                  Data="M 50,200 A 150,150 0 0 0 150,340"
+                  RenderTransformOrigin="0.5,0.5"
+                  Width="{Binding ActualWidth, ElementName=LayoutRoot}"
+                  Height="{Binding ActualHeight, ElementName=LayoutRoot}">
+                <Path.RenderTransform>
+                    <CompositeTransform Rotation="0"/>
+                </Path.RenderTransform>
+            </Path>
+
+            <!-- <Image Name="ValueImage" Width="40" Height="40" Source="/Assets/Icons/icon-focus.png"  HorizontalAlignment="Left" VerticalAlignment="Center"   Margin="535,0,-200,0" Canvas.ZIndex="100000" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5"/> -->
+            <Image             
+                Name="Indicator"
+                Width="40"
+                Height="40"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                GotFocus="Indicator_GotFocus"
+                Canvas.ZIndex="100000"
+                RenderTransformOrigin="0.5,0.5" 
+                PointerMoved="Indicator_PointerMoved"
+                Source="Assets/StoreLogo.png" 
+                />
+
+        </Canvas>
+    </Grid>
+</UserControl>
